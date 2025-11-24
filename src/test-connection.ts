@@ -1,9 +1,7 @@
 import { ACPClient } from "./acp";
+import { CONFIG } from "./config";
 
-const client = new ACPClient(
-  process.env.ACP_WS_URL || "wss://example.com/acp",
-  process.env.CLAUDE_API_KEY
-);
+const client = new ACPClient(CONFIG.ACP_URL, CONFIG.CLAUDE_API_KEY);
 
 async function main() {
   console.log("Connecting...");

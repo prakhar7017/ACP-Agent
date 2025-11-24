@@ -12,10 +12,12 @@ wss.on("connection", (ws) => {
     try { msg = JSON.parse(raw.toString()); } catch (e) { msg = null; }
 
     if (msg && msg.type === "client_message") {
-      ws.send(JSON.stringify({ type: "text", content: `Echo: ${msg.content || ""}` }));
+      const textResponse = { type: "text", content: `Echo: ${msg.content || ""}` };
+      console.log("SENDING text:", JSON.stringify(textResponse));
+      ws.send(JSON.stringify(textResponse));
 
       setTimeout(() => {
-        ws.send(JSON.stringify({
+        const toolCall = {
           type: "tool_call",
           id: "mock-write-1",
           tool: "write_file",
@@ -24,13 +26,17 @@ wss.on("connection", (ws) => {
             content: `Hello from mock ACP (for prompt: ${msg.content || ""})\n`,
             mode: "create"
           }
-        }));
+        };
+        console.log("SENDING tool_call:", JSON.stringify(toolCall));
+        ws.send(JSON.stringify(toolCall));
       }, 500);
     }
 
     if (msg && msg.type === "tool_result") {
       console.log("Tool result received:", msg);
-      ws.send(JSON.stringify({ type: "text", content: `Agent reported tool_result: ${msg.success ? "ok" : "fail"}` }));
+      const response = { type: "text", content: `Agent reported tool_result: ${msg.success ? "ok" : "fail"}` };
+      console.log("SENDING response:", JSON.stringify(response));
+      ws.send(JSON.stringify(response));
     }
   });
 
