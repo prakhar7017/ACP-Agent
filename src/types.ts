@@ -9,6 +9,22 @@ export interface ACPTextMessage extends ACPMessage {
   content: string;
 }
 
+// Streaming message types
+export interface ACPTextChunkMessage extends ACPMessage {
+  type: "text_chunk" | "text_delta";
+  content: string;
+  delta?: string; // Incremental content
+  done?: boolean; // True when stream is complete
+}
+
+export interface ACPStreamMessage extends ACPMessage {
+  type: "stream";
+  stream_type?: "text" | "tool_call";
+  content?: string;
+  delta?: string;
+  done?: boolean;
+}
+
 export interface ACPToolCallMessage extends ACPMessage {
   type: "tool_call";
   id: string;
@@ -20,6 +36,7 @@ export interface ACPClientMessage extends ACPMessage {
   type: "client_message";
   role: "user" | "assistant";
   content: string;
+  model?: string; // Optional model specification
 }
 
 export interface ACPToolResultMessage extends ACPMessage {
@@ -46,6 +63,12 @@ export interface SessionEntry {
 
 export interface SessionData {
   messages: SessionEntry[];
+  metadata?: {
+    model?: string;
+    workspace?: string;
+    createdAt?: number;
+    lastUpdated?: number;
+  };
 }
 
 export interface WriteFileArgs {

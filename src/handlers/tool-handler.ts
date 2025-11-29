@@ -1,18 +1,51 @@
 // src/handlers/tool-handler.ts
+import path from "path";
+import chalk from "chalk";
 import type { ACPClient } from "../acp";
 import type { ACPToolCallMessage, WriteFileArgs, ReadFileArgs, RunShellArgs, ToolResult } from "../types";
 import { writeFile, readFile, runShell } from "../tools";
-import { showWritePreview } from "../ui";
+import { showWritePreview, MessageFormatter, withSpinner } from "../ui/index";
 
 export class ToolHandler {
   constructor(
     private client: ACPClient,
-    private yesNo: (prompt: string, defaultYes?: boolean) => Promise<boolean>
+    private yesNo: (prompt: string, defaultYes?: boolean) => Promise<boolean>,
+    private workspaceDir: string = process.cwd()
   ) {}
+  
+  private resolvePath(filePath: string): string {
+    // If path is absolute, use as-is
+    if (path.isAbsolute(filePath)) {
+      return filePath;
+    }
+    
+    // Strip "workspace/" prefix if present - this prevents nested workspace folders
+    // when user has set a custom workspace directory
+    let cleanPath = filePath;
+    if (cleanPath.startsWith("workspace/") || cleanPath.startsWith("workspace\\")) {
+      cleanPath = cleanPath.replace(/^workspace[/\\]/, "");
+    }
+    
+    // Resolve relative to workspace directory
+    return path.resolve(this.workspaceDir, cleanPath);
+  }
+  
+  private getRelativePath(absolutePath: string): string {
+    // Get path relative to workspace for display purposes
+    try {
+      const relative = path.relative(this.workspaceDir, absolutePath);
+      // If it's outside workspace, show absolute path
+      if (relative.startsWith("..")) {
+        return absolutePath;
+      }
+      return relative;
+    } catch {
+      return absolutePath;
+    }
+  }
 
   async handleToolCall(call: ACPToolCallMessage): Promise<void> {
     const { tool, args, id } = call;
-    console.log("\n[Tool call]", tool, id);
 
     try {
       switch (tool) {
@@ -26,10 +59,12 @@ export class ToolHandler {
           await this.handleRunShell(id, this.validateRunShellArgs(args));
           break;
         default:
+          MessageFormatter.error(`Unknown tool: ${tool}`);
           this.sendToolResult(id, { success: false, error: `Unknown tool: ${tool}` });
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
+      MessageFormatter.error(`Tool error: ${errorMessage}`);
       this.sendToolResult(id, { success: false, error: errorMessage });
     }
   }
@@ -63,35 +98,105 @@ export class ToolHandler {
   }
 
   private async handleWriteFile(id: string, args: WriteFileArgs): Promise<void> {
-    const { path: filePath, content, mode = "create" } = args;
+    // Use the exact file path as provided - preserve the custom filename
+    const relativePath = args.path.trim();
+    const content = args.content;
+    const requestedMode = args.mode || "create";
+    
+    // Validate that path is provided
+    if (!relativePath || relativePath.length === 0) {
+      this.sendToolResult(id, { success: false, error: "File path cannot be empty" });
+      return;
+    }
+    
+    // Resolve path relative to workspace directory
+    const filePath = this.resolvePath(relativePath);
+    const displayPath = this.getRelativePath(filePath);
     
     // Try to read existing file for preview
     let oldContent: string | null = null;
+    let fileExists = false;
     try {
       const result = await readFile(filePath);
       if (result.success && result.content) {
         oldContent = result.content;
+        fileExists = true;
       }
     } catch {
       // File doesn't exist, which is fine for new files
       oldContent = null;
+      fileExists = false;
+    }
+
+    // Determine the actual mode and message
+    let actualMode = requestedMode;
+    let modeText: string;
+    
+    if (!fileExists) {
+      // File doesn't exist - create with the exact filename provided
+      actualMode = "create";
+      modeText = "create";
+      MessageFormatter.fileOperation("create", displayPath);
+    } else {
+      // File exists
+      if (requestedMode === "create") {
+        // User wants to create but file exists - warn about overwrite
+        modeText = "overwrite";
+        actualMode = "create"; // Still use create mode to respect the request
+        MessageFormatter.warning(`File "${displayPath}" already exists. This will overwrite it.`);
+      } else if (requestedMode === "edit") {
+        modeText = "edit";
+        actualMode = "edit";
+        MessageFormatter.fileOperation("edit", displayPath);
+      } else {
+        modeText = "update";
+        actualMode = requestedMode;
+      }
     }
 
     showWritePreview(oldContent, content);
-    const approved = await this.yesNo(`Approve writing ${filePath}?`);
+    
+    MessageFormatter.info(`Approval required for file: ${displayPath}`);
+    const approved = await this.yesNo(`Approve ${modeText}ing "${displayPath}"?`);
 
     if (!approved) {
+      MessageFormatter.warning("File write cancelled by user.");
       this.sendToolResult(id, { success: false, error: "user_rejected" });
       return;
     }
 
-    const result = await writeFile(filePath, content, mode);
+    // Write file with spinner
+    const result = await withSpinner(`Writing file: ${displayPath}...`, async () => {
+      return await writeFile(filePath, content, actualMode);
+    });
+    
+    // Show relative path in success message for clarity
+    const successMessage = result.message.replace(filePath, displayPath);
+    MessageFormatter.success(successMessage);
     this.sendToolResult(id, { success: true, stdout: result.message });
   }
 
   private async handleReadFile(id: string, args: ReadFileArgs): Promise<void> {
-    const { path: filePath } = args;
-    const result = await readFile(filePath);
+    const relativePath = args.path.trim();
+    if (!relativePath || relativePath.length === 0) {
+      MessageFormatter.error("File path cannot be empty");
+      this.sendToolResult(id, { success: false, error: "File path cannot be empty" });
+      return;
+    }
+    
+    const filePath = this.resolvePath(relativePath);
+    const displayPath = this.getRelativePath(filePath);
+    MessageFormatter.fileOperation("read", displayPath);
+    
+    const result = await withSpinner(`Reading file: ${displayPath}...`, async () => {
+      return await readFile(filePath);
+    });
+    
+    if (result.success) {
+      MessageFormatter.success(`File read successfully: ${displayPath}`);
+    } else {
+      MessageFormatter.error(`Failed to read file: ${result.error || "Unknown error"}`);
+    }
     
     this.sendToolResult(id, {
       success: result.success,
@@ -102,15 +207,41 @@ export class ToolHandler {
 
   private async handleRunShell(id: string, args: RunShellArgs): Promise<void> {
     const { cmd, cwd } = args;
-    console.log("Model requests running shell:", cmd);
+    const workingDir = cwd ? this.resolvePath(cwd) : this.workspaceDir;
+    const displayCwd = this.getRelativePath(workingDir);
+    
+    MessageFormatter.info(`Shell command requested: ${cmd}`);
+    MessageFormatter.info(`Working directory: ${displayCwd}`);
     
     const approved = await this.yesNo(`Approve running shell command: ${cmd}?`);
     if (!approved) {
+      MessageFormatter.warning("Shell command cancelled by user.");
       this.sendToolResult(id, { success: false, error: "user_rejected" });
       return;
     }
 
-    const result = await runShell(cmd, cwd || process.cwd());
+    const result = await withSpinner(`Running: ${cmd}...`, async () => {
+      return await runShell(cmd, workingDir);
+    });
+    
+    if (result.success) {
+      MessageFormatter.success(`Command completed successfully (exit code: ${result.code || 0})`);
+      if (result.stdout) {
+        console.log(chalk.dim("STDOUT:"));
+        console.log(result.stdout);
+      }
+      if (result.stderr) {
+        console.log(chalk.yellow("STDERR:"));
+        console.log(result.stderr);
+      }
+    } else {
+      MessageFormatter.error(`Command failed (exit code: ${result.code || "unknown"})`);
+      if (result.stderr) {
+        console.log(chalk.red("STDERR:"));
+        console.log(result.stderr);
+      }
+    }
+    
     this.sendToolResult(id, {
       success: result.success,
       stdout: result.stdout,

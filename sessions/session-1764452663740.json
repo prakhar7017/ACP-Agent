@@ -1,0 +1,153 @@
+{
+  "messages": [
+    {
+      "outgoing": {
+        "type": "client_message",
+        "role": "user",
+        "content": "create file test1.txt",
+        "model": "claude-3-sonnet"
+      },
+      "ts": 1764452635567
+    },
+    {
+      "incoming": {
+        "type": "text",
+        "content": "Echo: create file test1.txt"
+      },
+      "ts": 1764452635572
+    },
+    {
+      "incoming": {
+        "type": "tool_call",
+        "id": "mock-write-1",
+        "tool": "write_file",
+        "args": {
+          "path": "test1.txt",
+          "content": "Hello from mock ACP (for prompt: create file test1.txt)\n",
+          "mode": "create"
+        }
+      },
+      "ts": 1764452636080
+    },
+    {
+      "incoming": {
+        "type": "text",
+        "content": "Agent reported tool_result: ok"
+      },
+      "ts": 1764452637793
+    },
+    {
+      "outgoing": {
+        "type": "client_message",
+        "role": "user",
+        "content": "create file test2.txt",
+        "model": "claude-3-sonnet"
+      },
+      "ts": 1764452644149
+    },
+    {
+      "incoming": {
+        "type": "text",
+        "content": "Echo: create file test2.txt"
+      },
+      "ts": 1764452644150
+    },
+    {
+      "incoming": {
+        "type": "tool_call",
+        "id": "mock-write-1",
+        "tool": "write_file",
+        "args": {
+          "path": "test2.txt",
+          "content": "Hello from mock ACP (for prompt: create file test2.txt)\n",
+          "mode": "create"
+        }
+      },
+      "ts": 1764452644664
+    },
+    {
+      "incoming": {
+        "type": "text",
+        "content": "Agent reported tool_result: ok"
+      },
+      "ts": 1764452646060
+    },
+    {
+      "outgoing": {
+        "type": "client_message",
+        "role": "user",
+        "content": "hello world",
+        "model": "claude-3-sonnet"
+      },
+      "ts": 1764452655432
+    },
+    {
+      "incoming": {
+        "type": "text",
+        "content": "Echo: hello world"
+      },
+      "ts": 1764452655433
+    },
+    {
+      "incoming": {
+        "type": "tool_call",
+        "id": "mock-write-1",
+        "tool": "write_file",
+        "args": {
+          "path": "hello.txt",
+          "content": "Hello from mock ACP (for prompt: hello world)\n",
+          "mode": "create"
+        }
+      },
+      "ts": 1764452655936
+    },
+    {
+      "incoming": {
+        "type": "text",
+        "content": "Agent reported tool_result: ok"
+      },
+      "ts": 1764452657362
+    },
+    {
+      "outgoing": {
+        "type": "client_message",
+        "role": "user",
+        "content": "create file test3.txt",
+        "model": "claude-3-sonnet"
+      },
+      "ts": 1764452725838
+    },
+    {
+      "incoming": {
+        "type": "text",
+        "content": "Echo: create file test3.txt"
+      },
+      "ts": 1764452725840
+    },
+    {
+      "incoming": {
+        "type": "tool_call",
+        "id": "mock-write-1",
+        "tool": "write_file",
+        "args": {
+          "path": "test3.txt",
+          "content": "Hello from mock ACP (for prompt: create file test3.txt)\n",
+          "mode": "create"
+        }
+      },
+      "ts": 1764452726352
+    },
+    {
+      "incoming": {
+        "type": "text",
+        "content": "Agent reported tool_result: ok"
+      },
+      "ts": 1764452727839
+    }
+  ],
+  "metadata": {
+    "model": "claude-3-sonnet",
+    "workspace": "D:\\agent-acp\\test-session-workspace",
+    "lastUpdated": 1764452741667
+  }
+}

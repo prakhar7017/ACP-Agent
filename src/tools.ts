@@ -26,12 +26,21 @@ export async function writeFile(
   content: string,
   mode: "create" | "edit" | "patch" = "create"
 ): Promise<WriteFileResult> {
-  const fullDirectory = path.dirname(pathStr);
-  await fs.mkdir(fullDirectory, { recursive: true });
-  await fs.writeFile(pathStr, content, "utf8");
+  // Normalize the path but preserve the exact filename
+  const normalizedPath = path.normalize(pathStr);
+  
+  // Ensure directory exists (create if needed)
+  const fullDirectory = path.dirname(normalizedPath);
+  if (fullDirectory && fullDirectory !== "." && fullDirectory !== normalizedPath) {
+    await fs.mkdir(fullDirectory, { recursive: true });
+  }
+  
+  // Write file with the exact filename as provided (normalized for path safety)
+  await fs.writeFile(normalizedPath, content, "utf8");
+  
   return {
     success: true,
-    message: `File ${pathStr} ${mode === "create" ? "created" : mode === "edit" ? "updated" : "patched"} successfully`,
+    message: `File ${normalizedPath} ${mode === "create" ? "created" : mode === "edit" ? "updated" : "patched"} successfully`,
   };
 }
 

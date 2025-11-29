@@ -1,0 +1,37 @@
+// src/ui/boxen.ts - Simple box drawing utility
+// A lightweight alternative to the 'boxen' package
+
+export function boxen(
+  content: string,
+  options: { title?: string; padding?: number } = {}
+): string {
+  const { title, padding = 0 } = options;
+  const lines = content.split("\n");
+  const maxWidth = Math.max(
+    ...lines.map((l) => l.length),
+    title ? title.length + 2 : 0
+  );
+
+  const pad = " ".repeat(padding);
+  const width = maxWidth + padding * 2 + 2;
+  const top = "┌" + "─".repeat(width - 2) + "┐";
+  const bottom = "└" + "─".repeat(width - 2) + "┘";
+  const side = "│";
+
+  let result = top + "\n";
+
+  if (title) {
+    const titleLine = `${side}${pad}${title}${" ".repeat(width - title.length - padding * 2 - 2)}${side}`;
+    result += titleLine + "\n";
+    result += side + "─".repeat(width - 2) + side + "\n";
+  }
+
+  for (const line of lines) {
+    const paddedLine = line + " ".repeat(maxWidth - line.length);
+    result += `${side}${pad}${paddedLine}${pad}${side}\n`;
+  }
+
+  result += bottom;
+  return result;
+}
+
