@@ -16,54 +16,57 @@ wss.on("connection", (ws) => {
       console.log("SENDING text:", JSON.stringify(textResponse));
       ws.send(JSON.stringify(textResponse));
 
-      setTimeout(() => {
+      // Only send tool_call if user explicitly mentions creating/writing a file
+      const content = (msg.content || "").toLowerCase();
+      const hasFileCreationIntent = /(?:create|make|write|new)\s+(?:a\s+)?(?:file|files)/i.test(msg.content || "");
+      
+      if (hasFileCreationIntent) {
+        setTimeout(() => {
+          let filename = "hello.txt";
+          console.log("[Mock Server] Extracting filename from:", msg.content);
 
-        let filename = "hello.txt";
-        const content = msg.content || "";
-        console.log("[Mock Server] Extracting filename from:", content);
-
-
-        let match = content.match(/(?:create|make|write|new)\s+(?:file\s+)?([a-zA-Z0-9_.-]+\.\w+)/i);
-        if (match && match[1]) {
-          filename = match[1];
-          console.log("[Mock Server] Matched pattern 1, filename:", filename);
-        } else {
-
-          match = content.match(/file\s+([a-zA-Z0-9_.-]+\.\w+)/i);
+          // Pattern 1: "create file filename.ext" or "make a file filename.ext"
+          let match = msg.content.match(/(?:create|make|write|new)\s+(?:a\s+)?(?:file\s+)?([a-zA-Z0-9_.-]+\.\w+)/i);
           if (match && match[1]) {
             filename = match[1];
-            console.log("[Mock Server] Matched pattern 2, filename:", filename);
+            console.log("[Mock Server] Matched pattern 1, filename:", filename);
           } else {
-
-            match = content.match(/([a-zA-Z0-9_.-]+\.\w+)/i);
+            // Pattern 2: "file filename.ext"
+            match = msg.content.match(/file\s+([a-zA-Z0-9_.-]+\.\w+)/i);
             if (match && match[1]) {
               filename = match[1];
-              console.log("[Mock Server] Matched pattern 3, filename:", filename);
+              console.log("[Mock Server] Matched pattern 2, filename:", filename);
+            } else {
+              // Pattern 3: "create filename.ext" (without "file" keyword)
+              match = msg.content.match(/(?:create|make|write|new)\s+([a-zA-Z0-9_.-]+\.\w+)/i);
+              if (match && match[1]) {
+                filename = match[1];
+                console.log("[Mock Server] Matched pattern 3, filename:", filename);
+              }
             }
           }
-        }
 
-        if (!filename.includes('.')) {
-          filename = filename + '.txt';
-        }
-
-
-        const filePath = filename;
-        console.log("[Mock Server] Final file path:", filePath);
-        
-        const toolCall = {
-          type: "tool_call",
-          id: "mock-write-1",
-          tool: "write_file",
-          args: {
-            path: filePath,
-            content: `Hello from mock ACP (for prompt: ${msg.content || ""})\n`,
-            mode: "create"
+          if (!filename.includes('.')) {
+            filename = filename + '.txt';
           }
-        };
-        console.log("SENDING tool_call:", JSON.stringify(toolCall));
-        ws.send(JSON.stringify(toolCall));
-      }, 500);
+
+          const filePath = filename;
+          console.log("[Mock Server] Final file path:", filePath);
+          
+          const toolCall = {
+            type: "tool_call",
+            id: "mock-write-1",
+            tool: "write_file",
+            args: {
+              path: filePath,
+              content: `Hello from mock ACP (for prompt: ${msg.content || ""})\n`,
+              mode: "create"
+            }
+          };
+          console.log("SENDING tool_call:", JSON.stringify(toolCall));
+          ws.send(JSON.stringify(toolCall));
+        }, 500);
+      }
     }
 
     if (msg && msg.type === "tool_result") {

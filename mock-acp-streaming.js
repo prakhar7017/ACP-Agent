@@ -38,37 +38,50 @@ wss.on("connection", (ws) => {
         }, index * 100);
       });
 
-      setTimeout(() => {
-        let filename = "hello.txt";
-        const userContent = msg.content || "";
+      // Only send tool_call if user explicitly mentions creating/writing a file
+      const hasFileCreationIntent = /(?:create|make|write|new)\s+(?:a\s+)?(?:file|files)/i.test(msg.content || "");
+      
+      if (hasFileCreationIntent) {
+        setTimeout(() => {
+          let filename = "hello.txt";
+          const userContent = msg.content || "";
 
-        let match = userContent.match(/(?:create|make|write|new)\s+(?:file\s+)?([a-zA-Z0-9_.-]+\.\w+)/i);
-        if (match && match[1]) {
-          filename = match[1];
-        } else {
-          match = userContent.match(/file\s+([a-zA-Z0-9_.-]+\.\w+)/i);
+          // Pattern 1: "create file filename.ext" or "make a file filename.ext"
+          let match = userContent.match(/(?:create|make|write|new)\s+(?:a\s+)?(?:file\s+)?([a-zA-Z0-9_.-]+\.\w+)/i);
           if (match && match[1]) {
             filename = match[1];
+          } else {
+            // Pattern 2: "file filename.ext"
+            match = userContent.match(/file\s+([a-zA-Z0-9_.-]+\.\w+)/i);
+            if (match && match[1]) {
+              filename = match[1];
+            } else {
+              // Pattern 3: "create filename.ext" (without "file" keyword)
+              match = userContent.match(/(?:create|make|write|new)\s+([a-zA-Z0-9_.-]+\.\w+)/i);
+              if (match && match[1]) {
+                filename = match[1];
+              }
+            }
           }
-        }
-        
-        if (!filename.includes('.')) {
-          filename = filename + '.txt';
-        }
-        
-        const toolCall = {
-          type: "tool_call",
-          id: "mock-write-1",
-          tool: "write_file",
-          args: {
-            path: filename,
-            content: `Hello from streaming mock ACP (for prompt: ${userContent})\n`,
-            mode: "create"
+          
+          if (!filename.includes('.')) {
+            filename = filename + '.txt';
           }
-        };
-        console.log("SENDING tool_call:", JSON.stringify(toolCall));
-        ws.send(JSON.stringify(toolCall));
-      }, chunks.length * 100 + 200);
+          
+          const toolCall = {
+            type: "tool_call",
+            id: "mock-write-1",
+            tool: "write_file",
+            args: {
+              path: filename,
+              content: `Hello from streaming mock ACP (for prompt: ${userContent})\n`,
+              mode: "create"
+            }
+          };
+          console.log("SENDING tool_call:", JSON.stringify(toolCall));
+          ws.send(JSON.stringify(toolCall));
+        }, chunks.length * 100 + 200);
+      }
     }
 
     if (msg && msg.type === "tool_result") {

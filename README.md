@@ -161,8 +161,12 @@ bun run test:all
 
 # Start mock servers for testing
 bun run mock-server
-bun run stream-server
+bun run mock-streaming
 ```
+
+## Example Prompts
+
+See [PROMPT_EXAMPLES.md](./PROMPT_EXAMPLES.md) for detailed examples of prompts you can use with the system and expected results.
 
 ## Troubleshooting
 
