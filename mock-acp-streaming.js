@@ -1,7 +1,7 @@
 ﻿import { WebSocketServer } from "ws";
 
 const wss = new WebSocketServer({ port: 9000 }, () => {
-  console.log("Mock ACP server with streaming support listening on ws:
+  console.log("Mock ACP server with streaming support listening on ws://127.0.0.1:9000");
   console.log("Note: This version sends streaming messages");
 });
 
