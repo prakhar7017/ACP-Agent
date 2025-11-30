@@ -28,52 +28,57 @@ A TypeScript-based coding agent that communicates with Claude Code over the Agen
 
 ### Setup
 
-`ash
+```bash
 bun install
-`
+```
 
 Optional .env file:
-`
+```env
 ACP_WS_URL=ws://127.0.0.1:9000
 CLAUDE_API_KEY=your-api-key-here
 MODEL=claude-3-sonnet
 WORKSPACE_DIR=./workspace
-`
+```
 
 ## Quick Start
 
 1. Start mock server: 
-ode mock-acp.js
-2. Run agent: un run src/agent.ts
+   ```bash
+   bun run mock-server
+   ```
+2. Run agent: 
+   ```bash
+   bun run src/agent.ts
+   ```
 3. Start chatting: Type commands in the prompt
 
 ## Usage
 
 ### Basic Commands
 
-`ash
+```bash
 bun run src/agent.ts
 bun run src/agent.ts --model claude-3-opus
 bun run src/agent.ts --workspace ./my-project
 bun run src/agent.ts --help
-`
+```
 
 ### CLI Options
 
-- -m, --model <model> - Specify Claude model
-- -w, --workspace <path> - Set workspace directory
-- -u, --url <url> - WebSocket URL
-- -k, --api-key <key> - API key
-- -s, --session <name> - Resume session
-- -ls, --list-sessions - List sessions
-- -h, --help - Show help
+- `-m, --model <model>` - Specify Claude model
+- `-w, --workspace <path>` - Set workspace directory
+- `-u, --url <url>` - WebSocket URL
+- `-k, --api-key <key>` - API key
+- `-s, --session <name>` - Resume session
+- `-ls, --list-sessions` - List sessions
+- `-h, --help` - Show help
 
 ### Environment Variables
 
-- MODEL - Model name
-- WORKSPACE_DIR - Workspace path
-- ACP_WS_URL - WebSocket URL
-- CLAUDE_API_KEY - API key
+- `MODEL` - Model name
+- `WORKSPACE_DIR` - Workspace path
+- `ACP_WS_URL` - WebSocket URL
+- `CLAUDE_API_KEY` - API key
 
 Priority: CLI args > Environment vars > Defaults
 
@@ -81,10 +86,10 @@ Priority: CLI args > Environment vars > Defaults
 
 Sessions auto-save on exit. List and resume:
 
-`ash
+```bash
 bun run src/agent.ts --list-sessions
 bun run src/agent.ts --session session-1234567890
-`
+```
 
 ## File Operations
 
@@ -97,9 +102,10 @@ All operations require user approval.
 ## Shell Commands
 
 Run commands with approval:
-`
+
+```bash
 > run ls -la
-`
+```
 
 ## Streaming
 
@@ -114,49 +120,57 @@ Real-time streaming support with incremental display.
 
 ## Debug Mode
 
-`ash
+```bash
 DEBUG=1 bun run src/agent.ts
 LOG_LEVEL=DEBUG bun run src/agent.ts
-`
+```
 
 ## Project Structure
 
-`
+```
 src/
-â”œâ”€â”€ agent.ts              # Main agent
-â”œâ”€â”€ acp.ts                # WebSocket client
-â”œâ”€â”€ cli.ts                # CLI parsing
-â”œâ”€â”€ config.ts             # Configuration
-â”œâ”€â”€ session.ts            # Sessions
-â”œâ”€â”€ tools.ts              # File/shell utils
-â”œâ”€â”€ handlers/             # Tool handlers
-â”œâ”€â”€ streaming/            # Stream handling
-â”œâ”€â”€ ui/                   # UI components
-â””â”€â”€ utils/                # Utilities
-`
+├── agent.ts              # Main agent
+├── acp.ts                # WebSocket client
+├── cli.ts                # CLI parsing
+├── config.ts             # Configuration
+├── session.ts            # Sessions
+├── tools.ts              # File/shell utils
+├── handlers/             # Tool handlers
+├── streaming/            # Stream handling
+├── ui/                   # UI components
+└── utils/                # Utilities
+```
 
 ## Configuration
 
 Defaults:
-- URL: ws://127.0.0.1:9000
-- Model: claude-3-sonnet
+- URL: `ws://127.0.0.1:9000`
+- Model: `claude-3-sonnet`
 - Workspace: Current directory
 
 All values validated before use.
 
 ## Testing
 
-`ash
-node mock-acp.js
-node mock-acp-streaming.js
-`
+```bash
+# Run all tests
+bun run test
+
+# Run specific test suite
+bun run test:all
+
+# Start mock servers for testing
+bun run mock-server
+bun run stream-server
+```
 
 ## Troubleshooting
 
 Enable debug mode for detailed logs:
-`ash
+
+```bash
 DEBUG=1 bun run src/agent.ts
-`
+```
 
 ## Security
 

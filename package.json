@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "start": "bun run src/agent.ts",
+    "mock-server": "bun run src/mock-acp.js",
+    "stream-server": "bun run src/mock-acp-streaming.js",
     "test": "bun test tests",
     "test:all": "bun run tests/run-all-tests.ts",
     "test:boxen": "bun test tests/boxen.test.ts",
