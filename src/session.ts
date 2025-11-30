@@ -1,5 +1,4 @@
-// src/session.ts
-import fs from "fs/promises";
+﻿import fs from "fs/promises";
 import path from "path";
 import type { SessionData } from "./types";
 import type { Config } from "./config";
@@ -25,7 +24,7 @@ export async function saveUserSession(
   try {
     await fs.mkdir(sessionsDir, { recursive: true });
   } catch (error) {
-    // Directory might already exist, ignore error
+
     if (error instanceof Error && !error.message.includes("EEXIST")) {
       throw error;
     }
@@ -61,12 +60,11 @@ export async function loadSession(name: string): Promise<SessionDataWithMetadata
 export async function listSessions(): Promise<Array<{ name: string; path: string; metadata?: SessionMetadata }>> {
   try {
     const sessionsDir = path.resolve(process.cwd(), "sessions");
-    
-    // Check if sessions directory exists
+
     try {
       await fs.access(sessionsDir);
     } catch {
-      // Directory doesn't exist, return empty array
+
       return [];
     }
     
@@ -82,7 +80,7 @@ export async function listSessions(): Promise<Array<{ name: string; path: string
       const filePath = path.join(sessionsDir, file);
       
       try {
-        // Try to read metadata from file
+
         const content = await fs.readFile(filePath, "utf8");
         const data = JSON.parse(content) as SessionDataWithMetadata;
         
@@ -92,15 +90,14 @@ export async function listSessions(): Promise<Array<{ name: string; path: string
           metadata: data.metadata,
         });
       } catch {
-        // If we can't read metadata, just add the session name
+
         sessions.push({
           name: sessionName,
           path: filePath,
         });
       }
     }
-    
-    // Sort by last updated time (newest first)
+
     sessions.sort((a, b) => {
       const aTime = a.metadata?.lastUpdated || a.metadata?.createdAt || 0;
       const bTime = b.metadata?.lastUpdated || b.metadata?.createdAt || 0;

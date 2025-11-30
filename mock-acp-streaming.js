@@ -1,9 +1,7 @@
-// mock-acp-streaming.js
-// Optional mock server with streaming support for testing
-import { WebSocketServer } from "ws";
+﻿import { WebSocketServer } from "ws";
 
 const wss = new WebSocketServer({ port: 9000 }, () => {
-  console.log("Mock ACP server with streaming support listening on ws://127.0.0.1:9000");
+  console.log("Mock ACP server with streaming support listening on ws:
   console.log("Note: This version sends streaming messages");
 });
 
@@ -18,8 +16,7 @@ wss.on("connection", (ws) => {
     if (msg && msg.type === "client_message") {
       const streamId = `stream-${Date.now()}`;
       const content = `Echo: ${msg.content || ""}`;
-      
-      // Send streaming chunks
+
       const chunks = content.split(" ");
       let accumulated = "";
       
@@ -38,15 +35,13 @@ wss.on("connection", (ws) => {
           
           console.log(`SENDING stream chunk ${index + 1}/${chunks.length}:`, JSON.stringify(streamMsg));
           ws.send(JSON.stringify(streamMsg));
-        }, index * 100); // 100ms delay between chunks
+        }, index * 100);
       });
 
-      // Also send tool call after streaming completes
       setTimeout(() => {
         let filename = "hello.txt";
         const userContent = msg.content || "";
-        
-        // Extract filename
+
         let match = userContent.match(/(?:create|make|write|new)\s+(?:file\s+)?([a-zA-Z0-9_.-]+\.\w+)/i);
         if (match && match[1]) {
           filename = match[1];
@@ -78,8 +73,7 @@ wss.on("connection", (ws) => {
 
     if (msg && msg.type === "tool_result") {
       console.log("Tool result received:", msg);
-      
-      // Send streaming response
+
       const responseText = `Agent reported tool_result: ${msg.success ? "ok" : "fail"}`;
       const streamId = `stream-${Date.now()}`;
       const chars = responseText.split("");
@@ -94,7 +88,7 @@ wss.on("connection", (ws) => {
             done: isLast
           };
           ws.send(JSON.stringify(streamMsg));
-        }, index * 20); // 20ms per character
+        }, index * 20);
       });
     }
   });

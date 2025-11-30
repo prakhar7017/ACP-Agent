@@ -1,5 +1,4 @@
-// src/config.ts
-import path from "path";
+﻿import path from "path";
 import fs from "fs/promises";
 import { validateConfig, ValidationError } from "./utils/validation";
 import { log } from "./utils/logger";
@@ -23,7 +22,6 @@ export async function createConfig(options?: {
     ? path.resolve(options.workspace)
     : (process.env.WORKSPACE_DIR ? path.resolve(process.env.WORKSPACE_DIR) : process.cwd());
 
-  // Prepare configuration values
   const configValues = {
     url: options?.url || process.env.ACP_WS_URL || "ws://127.0.0.1:9000",
     apiKey: options?.apiKey || process.env.CLAUDE_API_KEY || undefined,
@@ -32,7 +30,6 @@ export async function createConfig(options?: {
     timeout: 5000,
   };
 
-  // Validate configuration values
   try {
     validateConfig(configValues);
   } catch (error) {
@@ -43,11 +40,10 @@ export async function createConfig(options?: {
     throw error;
   }
 
-  // Ensure workspace directory exists
   try {
     await fs.mkdir(workspaceDir, { recursive: true });
   } catch (error) {
-    // Directory might already exist or there might be permission issues
+
     const errorMessage = error instanceof Error ? error.message : String(error);
     if (!errorMessage.includes("EEXIST")) {
       log.warn(`Could not create workspace directory "${workspaceDir}": ${errorMessage}`);
@@ -64,7 +60,6 @@ export async function createConfig(options?: {
   };
 }
 
-// Synchronous version for backward compatibility (creates config but doesn't ensure workspace exists)
 export function createConfigSync(options?: {
   model?: string;
   workspace?: string;
@@ -85,6 +80,5 @@ export function createConfigSync(options?: {
   };
 }
 
-// Default config for backward compatibility (synchronous version)
 export const CONFIG = createConfigSync();
 

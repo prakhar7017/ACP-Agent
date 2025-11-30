@@ -1,7 +1,4 @@
-// src/utils/logger.ts
-// Logger utility with log levels and debug control
-
-export enum LogLevel {
+﻿export enum LogLevel {
   DEBUG = 0,
   INFO = 1,
   WARN = 2,
@@ -13,10 +10,9 @@ class Logger {
   private debugEnabled: boolean;
 
   constructor() {
-    // Check if DEBUG environment variable is set
+
     this.debugEnabled = process.env.DEBUG === "1" || process.env.DEBUG === "true";
-    
-    // Set log level based on environment
+
     const logLevel = process.env.LOG_LEVEL?.toUpperCase();
     switch (logLevel) {
       case "DEBUG":
@@ -32,7 +28,7 @@ class Logger {
         this.level = LogLevel.ERROR;
         break;
       default:
-        // Default: INFO in production, DEBUG if DEBUG env var is set
+
         this.level = this.debugEnabled ? LogLevel.DEBUG : LogLevel.INFO;
     }
   }
@@ -61,19 +57,16 @@ class Logger {
     }
   }
 
-  // Helper for debug logs that should only appear in debug mode
   debugOnly(message: string, ...args: unknown[]): void {
     if (this.debugEnabled) {
       console.log(`[DEBUG] ${message}`, ...args);
     }
   }
 
-  // Set log level at runtime
   setLevel(level: LogLevel): void {
     this.level = level;
   }
 
-  // Enable/disable debug mode
   setDebug(enabled: boolean): void {
     this.debugEnabled = enabled;
     if (enabled && this.level > LogLevel.DEBUG) {
@@ -82,10 +75,8 @@ class Logger {
   }
 }
 
-// Singleton logger instance
 export const logger = new Logger();
 
-// Convenience functions
 export const log = {
   debug: (message: string, ...args: unknown[]) => logger.debug(message, ...args),
   info: (message: string, ...args: unknown[]) => logger.info(message, ...args),

@@ -36,16 +36,16 @@ export class ACPClient {
     try {
       const parsed = JSON.parse(raw) as ACPMessage;
       
-      // Check if this is a streaming message
+
       if (parsed.type === "text_chunk" || parsed.type === "text_delta" || parsed.type === "stream") {
         this._handleStreamMessage(parsed);
         return;
       }
       
-      // Handle regular complete messages
+
       this.onMessageHandlers.forEach((h) => h(parsed));
     } catch (e) {
-      // Try to parse as streaming format (may be partial JSON or delimited)
+
       this._handlePotentialStreamChunk(raw);
     }
   };
@@ -56,12 +56,12 @@ export class ACPClient {
     const done = (msg as any).done === true;
     const streamId = (msg as any).stream_id || `stream-${Date.now()}`;
 
-    // Notify stream chunk handlers
+
     this.onStreamChunkHandlers.forEach((h) => h(chunk, done, streamId));
     
-    // If stream is done, also notify as complete message
+
     if (done && chunk) {
-      // Create a complete message from the stream
+
       const completeMsg: ACPMessage = {
         type: streamType === "tool_call" ? "tool_call" : "text",
         ...(streamType === "text" ? { content: chunk } : {}),
@@ -72,19 +72,19 @@ export class ACPClient {
   }
 
   private _handlePotentialStreamChunk(raw: string): void {
-    // Handle SSE-style streaming (data: {...})
+
     if (raw.startsWith("data: ")) {
       try {
-        const jsonStr = raw.slice(6); // Remove "data: " prefix
+        const jsonStr = raw.slice(6);
         const parsed = JSON.parse(jsonStr) as ACPMessage;
         this._handleStreamMessage(parsed);
         return;
       } catch (e) {
-        // Not valid JSON, ignore
+
       }
     }
     
-    // Handle NDJSON (newline-delimited JSON)
+
     if (raw.includes("\n")) {
       const lines = raw.split("\n");
       for (const line of lines) {
@@ -93,14 +93,14 @@ export class ACPClient {
             const parsed = JSON.parse(line) as ACPMessage;
             this._handleStreamMessage(parsed);
           } catch (e) {
-            // Ignore invalid JSON lines
+
           }
         }
       }
       return;
     }
     
-    // If we get here, it's not parseable - log error
+
     log.error("Failed to parse message:", raw);
   }
 
@@ -125,7 +125,7 @@ export class ACPClient {
         if (settled) return;
         settled = true;
         log.debugOnly("WebSocket opened, readyState:", this.ws?.readyState);
-        // flush queue
+
         for (const m of this.sendQueue) this._sendRaw(JSON.stringify(m));
         this.sendQueue = [];
         resolve();
@@ -142,14 +142,14 @@ export class ACPClient {
         this._handleError(err);
       };
 
-      // Set up persistent handlers that stay for the connection lifetime
+
       this.ws.on("open", onOpen);
       this.ws.on("error", onError);
       this.ws.on("message", this._handleMessage);
       this.ws.on("close", this._handleClose);
       log.debugOnly("WebSocket event listeners registered");
 
-      // safety timeout
+
       const t = setTimeout(() => {
         if (!settled) {
           settled = true;
@@ -160,7 +160,7 @@ export class ACPClient {
         }
       }, timeoutMs);
 
-      // ensure timeout cleared on settle
+
       const origResolve = resolve;
       resolve = (value?: any) => { clearTimeout(t); origResolve(value); };
       const origReject = reject;
@@ -178,7 +178,7 @@ export class ACPClient {
   send(msg: ACPMessage): void {
     const payload = JSON.stringify(msg);
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      // queue until connected
+
       this.sendQueue.push(msg);
       return;
     }

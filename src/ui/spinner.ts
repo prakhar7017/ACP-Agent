@@ -1,9 +1,8 @@
-// src/ui/spinner.ts
-import { stdout } from "process";
+﻿import { stdout } from "process";
 
 export class Spinner {
   private interval: NodeJS.Timeout | null = null;
-  private frames: string[] = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+  private frames: string[] = ["â ‹", "â ™", "â ¹", "â ¸", "â ¼", "â ´", "â ¦", "â §", "â ‡", "â "];
   private currentFrame = 0;
   private text: string;
   private isRunning = false;
@@ -34,25 +33,25 @@ export class Spinner {
       this.interval = null;
     }
     this.isRunning = false;
-    // Clear the spinner line
+
     stdout.write("\r\x1b[K");
   }
 
   succeed(text?: string): void {
     this.stop();
     if (text) {
-      stdout.write(`\r✓ ${text}\n`);
+      stdout.write(`\râœ“ ${text}\n`);
     } else {
-      stdout.write(`\r✓ ${this.text}\n`);
+      stdout.write(`\râœ“ ${this.text}\n`);
     }
   }
 
   fail(text?: string): void {
     this.stop();
     if (text) {
-      stdout.write(`\r✗ ${text}\n`);
+      stdout.write(`\râœ— ${text}\n`);
     } else {
-      stdout.write(`\r✗ ${this.text}\n`);
+      stdout.write(`\râœ— ${this.text}\n`);
     }
   }
 
@@ -69,7 +68,6 @@ export class Spinner {
   }
 }
 
-// Convenience function for async operations with spinner
 export async function withSpinner<T>(
   text: string,
   operation: () => Promise<T>

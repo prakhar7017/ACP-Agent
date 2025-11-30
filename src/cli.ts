@@ -1,5 +1,4 @@
-// src/cli.ts
-export interface CLIOptions {
+﻿export interface CLIOptions {
   model?: string;
   workspace?: string;
   url?: string;
@@ -42,7 +41,7 @@ Usage: bun run src/agent.ts [options]
 Options:
   -m, --model <model>       Specify the model to use (e.g., claude-3-opus, claude-3-sonnet)
   -w, --workspace <path>    Set the workspace directory
-  -u, --url <url>          WebSocket URL for ACP server (default: ws://127.0.0.1:9000)
+  -u, --url <url>          WebSocket URL for ACP server (default: ws:
   -k, --api-key <key>      API key for authentication
   -s, --session <name>     Resume from a saved session
   -ls, --list-sessions     List all available sessions
@@ -59,7 +58,7 @@ Examples:
   bun run src/agent.ts --workspace ./my-project --model claude-3-sonnet
   bun run src/agent.ts --session session-1234567890
   bun run src/agent.ts --list-sessions
-  bun run src/agent.ts --url ws://localhost:8080 --model claude-3-opus
+  bun run src/agent.ts --url ws:
 `);
 }
 

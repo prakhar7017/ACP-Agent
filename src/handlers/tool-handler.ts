@@ -1,5 +1,4 @@
-// src/handlers/tool-handler.ts
-import path from "path";
+﻿import path from "path";
 import chalk from "chalk";
 import type { ACPClient } from "../acp";
 import type { ACPToolCallMessage, WriteFileArgs, ReadFileArgs, RunShellArgs, ToolResult } from "../types";
@@ -14,27 +13,25 @@ export class ToolHandler {
   ) {}
   
   private resolvePath(filePath: string): string {
-    // If path is absolute, use as-is
+
     if (path.isAbsolute(filePath)) {
       return filePath;
     }
-    
-    // Strip "workspace/" prefix if present - this prevents nested workspace folders
-    // when user has set a custom workspace directory
+
+
     let cleanPath = filePath;
     if (cleanPath.startsWith("workspace/") || cleanPath.startsWith("workspace\\")) {
       cleanPath = cleanPath.replace(/^workspace[/\\]/, "");
     }
-    
-    // Resolve relative to workspace directory
+
     return path.resolve(this.workspaceDir, cleanPath);
   }
   
   private getRelativePath(absolutePath: string): string {
-    // Get path relative to workspace for display purposes
+
     try {
       const relative = path.relative(this.workspaceDir, absolutePath);
-      // If it's outside workspace, show absolute path
+
       if (relative.startsWith("..")) {
         return absolutePath;
       }
@@ -98,22 +95,19 @@ export class ToolHandler {
   }
 
   private async handleWriteFile(id: string, args: WriteFileArgs): Promise<void> {
-    // Use the exact file path as provided - preserve the custom filename
+
     const relativePath = args.path.trim();
     const content = args.content;
     const requestedMode = args.mode || "create";
-    
-    // Validate that path is provided
+
     if (!relativePath || relativePath.length === 0) {
       this.sendToolResult(id, { success: false, error: "File path cannot be empty" });
       return;
     }
-    
-    // Resolve path relative to workspace directory
+
     const filePath = this.resolvePath(relativePath);
     const displayPath = this.getRelativePath(filePath);
-    
-    // Try to read existing file for preview
+
     let oldContent: string | null = null;
     let fileExists = false;
     try {
@@ -123,26 +117,25 @@ export class ToolHandler {
         fileExists = true;
       }
     } catch {
-      // File doesn't exist, which is fine for new files
+
       oldContent = null;
       fileExists = false;
     }
 
-    // Determine the actual mode and message
     let actualMode = requestedMode;
     let modeText: string;
     
     if (!fileExists) {
-      // File doesn't exist - create with the exact filename provided
+
       actualMode = "create";
       modeText = "create";
       MessageFormatter.fileOperation("create", displayPath);
     } else {
-      // File exists
+
       if (requestedMode === "create") {
-        // User wants to create but file exists - warn about overwrite
+
         modeText = "overwrite";
-        actualMode = "create"; // Still use create mode to respect the request
+        actualMode = "create";
         MessageFormatter.warning(`File "${displayPath}" already exists. This will overwrite it.`);
       } else if (requestedMode === "edit") {
         modeText = "edit";
@@ -165,12 +158,10 @@ export class ToolHandler {
       return;
     }
 
-    // Write file with spinner
     const result = await withSpinner(`Writing file: ${displayPath}...`, async () => {
       return await writeFile(filePath, content, actualMode);
     });
-    
-    // Show relative path in success message for clarity
+
     const successMessage = result.message.replace(filePath, displayPath);
     MessageFormatter.success(successMessage);
     this.sendToolResult(id, { success: true, stdout: result.message });

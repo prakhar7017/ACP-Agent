@@ -1,5 +1,4 @@
-// src/types.ts
-export interface ACPMessage {
+﻿export interface ACPMessage {
   type: string;
   [key: string]: unknown;
 }
@@ -9,12 +8,11 @@ export interface ACPTextMessage extends ACPMessage {
   content: string;
 }
 
-// Streaming message types
 export interface ACPTextChunkMessage extends ACPMessage {
   type: "text_chunk" | "text_delta";
   content: string;
-  delta?: string; // Incremental content
-  done?: boolean; // True when stream is complete
+  delta?: string;
+  done?: boolean;
 }
 
 export interface ACPStreamMessage extends ACPMessage {
@@ -36,7 +34,7 @@ export interface ACPClientMessage extends ACPMessage {
   type: "client_message";
   role: "user" | "assistant";
   content: string;
-  model?: string; // Optional model specification
+  model?: string;
 }
 
 export interface ACPToolResultMessage extends ACPMessage {

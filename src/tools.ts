@@ -1,5 +1,4 @@
-// src/tools.ts
-import fs from "fs/promises";
+﻿import fs from "fs/promises";
 import path from "path";
 import { spawn } from "child_process";
 
@@ -26,16 +25,14 @@ export async function writeFile(
   content: string,
   mode: "create" | "edit" | "patch" = "create"
 ): Promise<WriteFileResult> {
-  // Normalize the path but preserve the exact filename
+
   const normalizedPath = path.normalize(pathStr);
-  
-  // Ensure directory exists (create if needed)
+
   const fullDirectory = path.dirname(normalizedPath);
   if (fullDirectory && fullDirectory !== "." && fullDirectory !== normalizedPath) {
     await fs.mkdir(fullDirectory, { recursive: true });
   }
-  
-  // Write file with the exact filename as provided (normalized for path safety)
+
   await fs.writeFile(normalizedPath, content, "utf8");
   
   return {

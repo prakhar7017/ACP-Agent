@@ -1,4 +1,4 @@
-import { ACPClient } from "./acp";
+﻿import { ACPClient } from "./acp";
 import { CONFIG } from "./config";
 
 const client = new ACPClient(CONFIG.ACP_URL, CONFIG.CLAUDE_API_KEY);
@@ -13,7 +13,6 @@ async function main() {
   client.onError((e) => console.error("Error:", e));
   client.onClose(() => console.log("Connection closed."));
 
-  // Test sending ping message
   client.send({
     type: "client_message",
     role: "user",

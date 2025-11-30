@@ -4,7 +4,20 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "bun run src/agent.ts"
+    "start": "bun run src/agent.ts",
+    "test": "bun test tests",
+    "test:all": "bun run tests/run-all-tests.ts",
+    "test:boxen": "bun test tests/boxen.test.ts",
+    "test:streaming": "bun test tests/streaming-accumulator.test.ts",
+    "test:validation": "bun test tests/validation.test.ts",
+    "test:session": "bun test tests/session.test.ts",
+    "test:tools": "bun test tests/tools.test.ts",
+    "test:config": "bun test tests/config.test.ts",
+    "test:cli": "bun test tests/cli.test.ts",
+    "test:preview": "bun test tests/preview.test.ts",
+    "test:spinner": "bun test tests/spinner.test.ts",
+    "test:formatter": "bun test tests/formatter.test.ts",
+    "test:streaming-display": "bun test tests/streaming-display.test.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
