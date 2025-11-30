@@ -6,7 +6,7 @@ import { log } from "./utils/logger";
 export interface Config {
   ACP_URL: string;
   CLAUDE_API_KEY?: string;
-  MODEL: string;
+  MODEL?: string;
   WORKSPACE_DIR: string;
   SESSIONS_DIR: string;
   CONNECT_TIMEOUT_MS: number;
@@ -22,10 +22,19 @@ export async function createConfig(options?: {
     ? path.resolve(options.workspace)
     : (process.env.WORKSPACE_DIR ? path.resolve(process.env.WORKSPACE_DIR) : process.cwd());
 
+  const url = options?.url || process.env.ACP_WS_URL || "ws://127.0.0.1:9000";
+  const isLocalhost = url.includes("127.0.0.1") || url.includes("localhost");
+  
+  // If connecting to localhost (mock server) and no model explicitly provided,
+  // don't use the env var - allow running without a model
+  const model = options?.model !== undefined 
+    ? options.model 
+    : (isLocalhost ? undefined : (process.env.MODEL || undefined));
+
   const configValues = {
-    url: options?.url || process.env.ACP_WS_URL || "ws://127.0.0.1:9000",
+    url: url,
     apiKey: options?.apiKey || process.env.CLAUDE_API_KEY || undefined,
-    model: options?.model || process.env.MODEL || "claude-3-sonnet",
+    model: model,
     workspaceDir: workspaceDir,
     timeout: 5000,
   };
@@ -53,7 +62,7 @@ export async function createConfig(options?: {
   return {
     ACP_URL: configValues.url,
     CLAUDE_API_KEY: configValues.apiKey,
-    MODEL: configValues.model,
+    MODEL: configValues.model || undefined,
     WORKSPACE_DIR: workspaceDir,
     SESSIONS_DIR: path.resolve(process.cwd(), "sessions"),
     CONNECT_TIMEOUT_MS: configValues.timeout,
@@ -70,10 +79,19 @@ export function createConfigSync(options?: {
     ? path.resolve(options.workspace)
     : (process.env.WORKSPACE_DIR ? path.resolve(process.env.WORKSPACE_DIR) : process.cwd());
 
+  const url = options?.url || process.env.ACP_WS_URL || "ws://127.0.0.1:9000";
+  const isLocalhost = url.includes("127.0.0.1") || url.includes("localhost");
+  
+  // If connecting to localhost (mock server) and no model explicitly provided,
+  // don't use the env var - allow running without a model
+  const model = options?.model !== undefined 
+    ? options.model 
+    : (isLocalhost ? undefined : (process.env.MODEL || undefined));
+
   return {
-    ACP_URL: options?.url || process.env.ACP_WS_URL || "ws://127.0.0.1:9000",
+    ACP_URL: url,
     CLAUDE_API_KEY: options?.apiKey || process.env.CLAUDE_API_KEY || undefined,
-    MODEL: options?.model || process.env.MODEL || "claude-3-sonnet",
+    MODEL: model,
     WORKSPACE_DIR: workspaceDir,
     SESSIONS_DIR: path.resolve(process.cwd(), "sessions"),
     CONNECT_TIMEOUT_MS: 5000,

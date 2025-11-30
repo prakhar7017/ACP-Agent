@@ -52,6 +52,10 @@ export async function loadSession(name: string): Promise<SessionDataWithMetadata
     const data = JSON.parse(content) as SessionDataWithMetadata;
     return data;
   } catch (error) {
+    // If file doesn't exist, return null instead of throwing
+    if (error instanceof Error && (error.message.includes("ENOENT") || error.message.includes("no such file"))) {
+      return null;
+    }
     const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(`Failed to load session "${name}": ${errorMessage}`);
   }

@@ -11,16 +11,16 @@
 
   const pad = " ".repeat(padding);
   const width = maxWidth + padding * 2 + 2;
-  const top = "â”Œ" + "â”€".repeat(width - 2) + "â”";
-  const bottom = "â””" + "â”€".repeat(width - 2) + "â”˜";
-  const side = "â”‚";
+  const top = "+" + "-".repeat(width - 2) + "+";
+  const bottom = "+" + "-".repeat(width - 2) + "+";
+  const side = "|";
 
   let result = top + "\n";
 
   if (title) {
     const titleLine = `${side}${pad}${title}${" ".repeat(width - title.length - padding * 2 - 2)}${side}`;
     result += titleLine + "\n";
-    result += side + "â”€".repeat(width - 2) + side + "\n";
+    result += side + "-".repeat(width - 2) + side + "\n";
   }
 
   for (const line of lines) {
@@ -31,4 +31,3 @@
   result += bottom;
   return result;
 }
-

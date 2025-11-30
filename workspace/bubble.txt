@@ -1,1 +1,1 @@
-Hello from mock ACP (for prompt: create file bubble.txt)
+Hello from streaming mock ACP (for prompt: create a file bubble.txt)

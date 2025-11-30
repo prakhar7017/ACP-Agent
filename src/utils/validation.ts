@@ -38,13 +38,42 @@ export function validatePath(pathStr: string, field: string = "path"): void {
     throw new ValidationError(`${field} cannot be empty or whitespace only`, field);
   }
 
-
-  const invalidChars = /[<>:"|?*\x00-\x1f]/;
-  if (invalidChars.test(trimmed) && process.platform === "win32") {
-    throw new ValidationError(
-      `${field} contains invalid characters for Windows: ${trimmed}`,
-      field
-    );
+  if (process.platform === "win32") {
+    // On Windows, allow drive letters (e.g., C:, D:) and backslashes
+    // Check for invalid characters but exclude colons that are part of drive letters
+    const driveLetterPattern = /^[A-Za-z]:/;
+    const hasDriveLetter = driveLetterPattern.test(trimmed);
+    
+    // Remove drive letter prefix for validation if present
+    const pathToCheck = hasDriveLetter ? trimmed.substring(2) : trimmed;
+    
+    // Invalid characters for Windows paths (excluding colon which is valid in drive letters)
+    // Also exclude backslash which is a valid path separator on Windows
+    const invalidChars = /[<>"|?*\x00-\x1f]/;
+    
+    if (invalidChars.test(pathToCheck)) {
+      throw new ValidationError(
+        `${field} contains invalid characters for Windows: ${trimmed}`,
+        field
+      );
+    }
+    
+    // Additional check: if there's a colon that's not part of a drive letter, it's invalid
+    if (!hasDriveLetter && trimmed.includes(":")) {
+      throw new ValidationError(
+        `${field} contains invalid characters for Windows: ${trimmed}`,
+        field
+      );
+    }
+  } else {
+    // On Unix-like systems, check for invalid characters
+    const invalidChars = /[<>:"|?*\x00-\x1f]/;
+    if (invalidChars.test(trimmed)) {
+      throw new ValidationError(
+        `${field} contains invalid characters: ${trimmed}`,
+        field
+      );
+    }
   }
 }
 

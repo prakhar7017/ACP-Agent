@@ -19,7 +19,7 @@ class Agent {
   private promptQueue: Array<{ question: string; resolve: (value: string) => void; priority: boolean }> = [];
   private currentPrompt: { question: string; resolve: (value: string) => void } | null = null;
   private config: Config;
-  private model: string;
+  private model: string | undefined;
   private sessionName: string | null = null;
   private streamAccumulator: StreamingAccumulator = new StreamingAccumulator();
   private currentStreamId: string | null = null;
@@ -50,7 +50,9 @@ class Agent {
 
   async start(initialSession?: SessionEntry[]): Promise<void> {
     MessageFormatter.section("Agent Starting");
-    MessageFormatter.info(`Model: ${this.model}`);
+    if (this.model) {
+      MessageFormatter.info(`Model: ${this.model}`);
+    }
     MessageFormatter.info(`Workspace: ${this.config.WORKSPACE_DIR}`);
     
     if (this.sessionName) {
@@ -228,7 +230,7 @@ class Agent {
         type: "client_message",
         role: "user",
         content: input,
-        model: this.model,
+        ...(this.model ? { model: this.model } : {}),
       };
       
       MessageFormatter.userMessage(input);
@@ -245,7 +247,7 @@ class Agent {
     const sessionName = this.sessionName || `session-${Date.now()}`;
     
     const metadata: SessionMetadata = {
-      model: this.model,
+      ...(this.model ? { model: this.model } : {}),
       workspace: this.config.WORKSPACE_DIR,
       lastUpdated: Date.now(),
     };

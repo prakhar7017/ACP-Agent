@@ -18,7 +18,7 @@ export class StreamingDisplay {
       this.update(initialContent);
     } else {
 
-      process.stdout.write("\n" + chalk.blue.bold("ðŸ¤– Model:") + "\n");
+      process.stdout.write("\n" + chalk.blue.bold("[Model]:") + "\n");
     }
   }
 
@@ -98,7 +98,7 @@ export class CharacterStreamDisplay {
     this.displayContent = "";
     this.isActive = true;
 
-    process.stdout.write("\n" + chalk.blue.bold("ðŸ¤– Model:") + "\n");
+    process.stdout.write("\n" + chalk.blue.bold("[Model]:") + "\n");
 
     this.interval = setInterval(() => {
       this.tick();

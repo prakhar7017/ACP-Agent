@@ -3,11 +3,11 @@ import chalk from "chalk";
 import { boxen } from "./boxen";
 
 export function showWritePreview(oldStr: string | null, newStr: string): void {
-  console.log("\n" + chalk.bold.cyan("ðŸ“„ File Preview") + "\n");
+  console.log("\n" + chalk.bold.cyan("[File Preview]") + "\n");
   
   if (oldStr === null) {
     console.log(chalk.green.bold("  [NEW FILE]"));
-    console.log(chalk.dim("  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€"));
+    console.log(chalk.dim("  " + "-".repeat(50)));
     const lines = newStr.split("\n");
     for (const line of lines) {
       console.log(chalk.green("  + ") + line);
@@ -33,6 +33,6 @@ export function showWritePreview(oldStr: string | null, newStr: string): void {
   }
   
   console.log(output);
-  console.log(chalk.dim("  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€"));
+  console.log(chalk.dim("  " + "-".repeat(50)));
 }
 

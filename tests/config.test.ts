@@ -6,7 +6,7 @@ test("createConfigSync - returns default config", () => {
   
   expect(config).toBeTruthy();
   expect(config.ACP_URL).toBeTruthy();
-  expect(config.MODEL).toBeTruthy();
+  // MODEL is optional - when connecting to localhost, it may be undefined
   expect(config.WORKSPACE_DIR).toBeTruthy();
   expect(config.SESSIONS_DIR).toBeTruthy();
   expect(config.CONNECT_TIMEOUT_MS).toBe(5000);

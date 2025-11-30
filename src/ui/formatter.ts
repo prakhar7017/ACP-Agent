@@ -4,31 +4,31 @@ import { boxen } from "./boxen";
 export class MessageFormatter {
 
   static modelMessage(content: string): void {
-    console.log("\n" + chalk.blue.bold("ðŸ¤– Model:") + "\n" + chalk.white(content));
+    console.log("\n" + chalk.blue.bold("[Model]:") + "\n" + chalk.white(content));
   }
 
   static userMessage(content: string): void {
-    console.log("\n" + chalk.cyan.bold("ðŸ‘¤ You:") + " " + chalk.white(content));
+    console.log("\n" + chalk.cyan.bold("[You]:") + " " + chalk.white(content));
   }
 
   static toolCall(tool: string, id: string): void {
-    console.log("\n" + chalk.yellow.bold("ðŸ”§ Tool Call:") + ` ${chalk.yellow(tool)} (${chalk.dim(id)})`);
+    console.log("\n" + chalk.yellow.bold("[Tool Call]:") + ` ${chalk.yellow(tool)} (${chalk.dim(id)})`);
   }
 
   static info(message: string): void {
-    console.log(chalk.blue("â„¹"), message);
+    console.log(chalk.blue("[i]"), message);
   }
 
   static success(message: string): void {
-    console.log(chalk.green("âœ“"), message);
+    console.log(chalk.green("[+]"), message);
   }
 
   static warning(message: string): void {
-    console.log(chalk.yellow("âš "), message);
+    console.log(chalk.yellow("[!]"), message);
   }
 
   static error(message: string): void {
-    console.log(chalk.red("âœ—"), message);
+    console.log(chalk.red("[-]"), message);
   }
 
   static section(title: string): void {
@@ -36,7 +36,7 @@ export class MessageFormatter {
   }
 
   static divider(): void {
-    console.log(chalk.dim("â”€".repeat(60)));
+    console.log(chalk.dim("-".repeat(60)));
   }
 
   static box(content: string, title?: string): void {
@@ -48,19 +48,19 @@ export class MessageFormatter {
   }
 
   static connected(): void {
-    console.log(chalk.green("âœ“ Connected to ACP server"));
+    console.log(chalk.green("[+] Connected to ACP server"));
   }
 
   static connectionFailed(error: string): void {
-    console.log(chalk.red(`âœ— Connection failed: ${error}`));
+    console.log(chalk.red(`[-] Connection failed: ${error}`));
   }
 
   static fileOperation(type: "create" | "edit" | "read" | "delete", path: string): void {
     const icons = {
-      create: "ðŸ“",
-      edit: "âœï¸",
-      read: "ðŸ“–",
-      delete: "ðŸ—‘ï¸",
+      create: "[+]",
+      edit: "[~]",
+      read: "[>]",
+      delete: "[-]",
     };
     const colors = {
       create: chalk.green,
@@ -75,11 +75,10 @@ export class MessageFormatter {
     const percentage = Math.round((current / total) * 100);
     const filled = Math.round((current / total) * 20);
     const empty = 20 - filled;
-    const bar = "â–ˆ".repeat(filled) + "â–‘".repeat(empty);
+    const bar = "=".repeat(filled) + " ".repeat(empty);
     process.stdout.write(`\r${label} [${bar}] ${percentage}%`);
     if (current === total) {
       process.stdout.write("\n");
     }
   }
 }
-

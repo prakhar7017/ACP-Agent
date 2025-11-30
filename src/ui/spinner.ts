@@ -2,7 +2,7 @@
 
 export class Spinner {
   private interval: NodeJS.Timeout | null = null;
-  private frames: string[] = ["â ‹", "â ™", "â ¹", "â ¸", "â ¼", "â ´", "â ¦", "â §", "â ‡", "â "];
+  private frames: string[] = ["|", "/", "-", "\\", "|", "/", "-", "\\", "|", "/"];
   private currentFrame = 0;
   private text: string;
   private isRunning = false;
@@ -40,18 +40,18 @@ export class Spinner {
   succeed(text?: string): void {
     this.stop();
     if (text) {
-      stdout.write(`\râœ“ ${text}\n`);
+      stdout.write(`\r[+] ${text}\n`);
     } else {
-      stdout.write(`\râœ“ ${this.text}\n`);
+      stdout.write(`\r[+] ${this.text}\n`);
     }
   }
 
   fail(text?: string): void {
     this.stop();
     if (text) {
-      stdout.write(`\râœ— ${text}\n`);
+      stdout.write(`\r[-] ${text}\n`);
     } else {
-      stdout.write(`\râœ— ${this.text}\n`);
+      stdout.write(`\r[-] ${this.text}\n`);
     }
   }
 

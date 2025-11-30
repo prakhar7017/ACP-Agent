@@ -32,6 +32,14 @@ test("validatePath - valid path", () => {
   expect(() => validatePath("relative/path", "path")).not.toThrow();
 });
 
+test("validatePath - Windows absolute path with drive letter", () => {
+  if (process.platform === "win32") {
+    expect(() => validatePath("D:\\agent-acp\\workspace", "workspace")).not.toThrow();
+    expect(() => validatePath("C:\\Users\\test", "workspace")).not.toThrow();
+    expect(() => validatePath("D:/agent-acp/workspace", "workspace")).not.toThrow();
+  }
+});
+
 test("validatePath - empty string", () => {
   expect(() => validatePath("", "path")).toThrow(ValidationError);
 });
